@@ -1,0 +1,268 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red38\green38\blue38;\red245\green245\blue245;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww12480\viewh12540\viewkind0
+\deftab720
+\pard\pardeftab720\sl520\partightenfactor0
+
+\f0\fs18 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 package com.bnym.rpx.fraud.service.controller;\
+\
+import java.util.List;\
+\
+import javax.validation.Valid;\
+\
+import org.apache.log4j.Logger;\
+import org.springframework.beans.factory.annotation.Autowired;\
+import org.springframework.http.MediaType;\
+import org.springframework.web.bind.annotation.PathVariable;\
+import org.springframework.web.bind.annotation.RequestBody;\
+import org.springframework.web.bind.annotation.RequestMapping;\
+import org.springframework.web.bind.annotation.RequestMethod;\
+import org.springframework.web.bind.annotation.RestController;\
+\
+import com.bnym.rpx.fraud.service.business.BlackListedBusiness;\
+import com.bnym.rpx.fraud.service.constant.ApplicationConstant;\
+import com.bnym.rpx.fraud.service.constant.BlackListConstant;\
+import com.bnym.rpx.fraud.service.model.BlackListedDetails;\
+import com.bnym.rpx.fraud.service.model.ErrorData;\
+import com.bnym.rpx.fraud.service.model.MetaData;\
+import com.bnym.rpx.fraud.service.model.Response;\
+\
+import io.swagger.annotations.Api;\
+import io.swagger.annotations.ApiImplicitParam;\
+import io.swagger.annotations.ApiImplicitParams;\
+import io.swagger.annotations.ApiOperation;\
+import io.swagger.annotations.ApiResponse;\
+import io.swagger.annotations.ApiResponses;\
+\
+/**\
+ * This class having functionality related to fraud detection.\
+ * \
+ * @author adcgl63\
+ *\
+ */\
+@RestController\
+@Api(value = "Blacklist")\
+public class BlacklistedController \{\
+	\
+	private static final Logger logger = Logger.getLogger( BlacklistedController.class );\
+\
+	@Autowired\
+	private BlackListedBusiness blackListedBusiness;\
+	\
+	@RequestMapping(value = "/v1/blackList/\{id\}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)\
+	@ApiOperation(value = "Fetches blacklist details by Id ", response = Response.class)\
+	@ApiImplicitParams(\{\
+		@ApiImplicitParam(name = "id", value = "black list id", required = true, dataType = "Long", paramType = "path")\})\
+	@ApiResponses(value = \{\
+            @ApiResponse(code = 200, message = "Success", response = Response.class),\
+            @ApiResponse(code = 400, message = "Bad request", response = Response.class),\
+            @ApiResponse(code = 404, message = "Could not get blacklist", response = Response.class),\
+            @ApiResponse(code = 500, message = "Error occurred while getting blacklist")\})\
+	public Response<BlackListedDetails> getBlackListDetailsById(@PathVariable("id") Long id) \{\
+		\
+		Response<BlackListedDetails> respone  = new Response<BlackListedDetails>();\
+		\
+		try \{\
+			\
+			logger.info("getBlackListDetailsById with id::"+id);\
+			\
+			BlackListedDetails blackListedDetails = blackListedBusiness.getBlackListedDetailsById(id);\
+			\
+			respone.setResult(blackListedDetails);\
+			\
+			respone.setMetaData(new MetaData(200, ApplicationConstant.SUCCESS));\
+			\
+		\} catch (Exception e) \{\
+			\
+			logger.error("Exception occurred while getBlackListDetailsById::"+e.getMessage());\
+			\
+			respone.setErrorData(new ErrorData(ApplicationConstant.EXCEPTION,e.getMessage()));\
+			\
+			respone.setMetaData(new MetaData(500, ApplicationConstant.FAILURE));\
+			\
+		\}\
+		\
+		return respone;\
+	\}\
+	\
+	@RequestMapping(value = "/v1/blackList/\{id\}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)\
+	@ApiOperation(value = "Delete blacklist details by Id ", response = Response.class)\
+	@ApiImplicitParams(\{\
+		@ApiImplicitParam(name = "id", value = "black list id", required = true, dataType = "Long", paramType = "path")\})\
+	@ApiResponses(value = \{\
+            @ApiResponse(code = 200, message = "Success", response = Response.class),\
+            @ApiResponse(code = 400, message = "Bad request", response = Response.class),\
+            @ApiResponse(code = 404, message = "Could not delete blacklist", response = Response.class),\
+            @ApiResponse(code = 500, message = "Error occurred while deleting blacklist")\})\
+	public Response<String> deleteBlackListDetailsById(@PathVariable("id") Long id) \{\
+		\
+		Response<String> respone  = new Response<String>();\
+		\
+		try \{\
+			\
+			logger.info("deleteBlackListDetailsById with id::"+id);\
+			\
+			blackListedBusiness.deleteBlacklistDetailsById(id);\
+			\
+			respone.setResult(BlackListConstant.DELETE_MESSAGE);\
+			\
+			respone.setMetaData(new MetaData(200, ApplicationConstant.SUCCESS));\
+			\
+		\} catch (Exception e) \{\
+			\
+			logger.error("Exception occurred while deleteBlackListDetailsById::"+e.getMessage());\
+			\
+			respone.setErrorData(new ErrorData(ApplicationConstant.EXCEPTION,e.getMessage()));\
+			\
+			respone.setMetaData(new MetaData(500, ApplicationConstant.FAILURE));\
+			\
+		\}\
+		\
+		return respone;\
+	\}\
+	\
+	@RequestMapping(value = "/v1/blackList/offSet/\{offSet\}/limit/\{limit\}",\
+			 method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)\
+	@ApiOperation(value = "Fetches blacklist details by offset and limit ", response = Response.class)\
+	@ApiImplicitParams(\{\
+		@ApiImplicitParam(name = "offSet", value = "Page Number", required = true, dataType = "Integer", paramType = "path"),\
+		@ApiImplicitParam(name = "limit", value = "Page Size", required = true, dataType = "Integer", paramType = "path")\})\
+	@ApiResponses(value = \{\
+            @ApiResponse(code = 200, message = "Success", response = Response.class),\
+            @ApiResponse(code = 400, message = "Bad request", response = Response.class),\
+            @ApiResponse(code = 404, message = "Could not get blacklist by offset and limit", response = Response.class),\
+            @ApiResponse(code = 500, message = "Error occurred while getting blacklist by offset and size")\})\
+	public Response<List<BlackListedDetails>> getAllBlackListDetailsByOffsetAndLimit(@PathVariable("offSet") Integer offSet,@PathVariable("limit") Integer limit) \{\
+		\
+		Response<List<BlackListedDetails>> respone  = new Response<List<BlackListedDetails>>();\
+		\
+		try \{\
+			\
+			logger.info("getAllBlackListDetailsByOffsetAndLimit with offSet::"+offSet +"::limit::"+limit);\
+			\
+			List<BlackListedDetails> blacklistDetails = blackListedBusiness.getAllBlacklistDetails(offSet,limit);\
+			\
+			respone.setResult(blacklistDetails);\
+			\
+			respone.setMetaData(new MetaData(200, ApplicationConstant.SUCCESS));\
+			\
+		\} catch (Exception e) \{\
+			\
+			logger.error("Exception occurred while getAllBlackListDetailsByOffsetAndLimit::"+e.getMessage());\
+			\
+			respone.setErrorData(new ErrorData(ApplicationConstant.EXCEPTION,e.getMessage()));\
+			\
+			respone.setMetaData(new MetaData(500, ApplicationConstant.FAILURE));\
+			\
+		\}\
+		\
+		return respone;\
+	\}\
+	\
+	@RequestMapping(value = "/v1/blackList", method = RequestMethod.POST,\
+		produces = MediaType.APPLICATION_JSON_VALUE,consumes = MediaType.APPLICATION_JSON_VALUE)\
+	@ApiOperation(value = "Save blacklist details", response = Response.class)\
+	@ApiResponses(value = \{\
+            @ApiResponse(code = 200, message = "Success", response = Response.class),\
+            @ApiResponse(code = 400, message = "Bad request", response = Response.class),\
+            @ApiResponse(code = 404, message = "Could not save blacklist", response = Response.class),\
+            @ApiResponse(code = 500, message = "Error occurred while saving blacklist")\})\
+	public Response<String> saveBlacklistDetails(@Valid @RequestBody BlackListedDetails blackListedDetails) \{\
+		\
+		Response<String> respone  = new Response<String>();\
+		\
+		try \{\
+			\
+			logger.info("saveBlacklistDetails with request::"+blackListedDetails.toString());\
+			\
+			blackListedBusiness.saveOrUpdateBlacklistDetails(blackListedDetails);\
+			\
+			respone.setResult(BlackListConstant.SAVE_MESSAGE);\
+			\
+			respone.setMetaData(new MetaData(200, ApplicationConstant.SUCCESS));\
+			\
+		\} catch (Exception e) \{\
+			\
+			logger.error("Exception occurred while saveBlacklistDetails::"+e.getMessage());\
+			\
+			respone.setErrorData(new ErrorData(ApplicationConstant.EXCEPTION,e.getMessage()));\
+			\
+			respone.setMetaData(new MetaData(500, ApplicationConstant.FAILURE));\
+			\
+		\}\
+		\
+		return respone;\
+	\}\
+	\
+	@RequestMapping(value = "/v1/blackList", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)\
+	@ApiOperation(value = "Update blacklist details", response = Response.class)\
+	@ApiResponses(value = \{\
+            @ApiResponse(code = 200, message = "Success", response = Response.class),\
+            @ApiResponse(code = 400, message = "Bad request", response = Response.class),\
+            @ApiResponse(code = 404, message = "Could not update blacklist", response = Response.class),\
+            @ApiResponse(code = 500, message = "Error occurred while updating blacklist")\})\
+	public Response<String> updateBlacklistDetails(@Valid @RequestBody BlackListedDetails blackListedDetails) \{\
+\
+		Response<String> respone = new Response<String>();\
+\
+		try \{\
+\
+			logger.info("updateBlacklistDetails with request::" + blackListedDetails.toString());\
+\
+			blackListedBusiness.saveOrUpdateBlacklistDetails(blackListedDetails);\
+\
+			respone.setResult(BlackListConstant.UPDATE_MESSAGE);\
+\
+			respone.setMetaData(new MetaData(200, ApplicationConstant.SUCCESS));\
+\
+		\} catch (Exception e) \{\
+\
+			logger.error("Exception occurred while updateBlacklistDetails::" + e.getMessage());\
+\
+			respone.setErrorData(new ErrorData(ApplicationConstant.EXCEPTION, e.getMessage()));\
+\
+			respone.setMetaData(new MetaData(500, ApplicationConstant.FAILURE));\
+\
+		\}\
+\
+		return respone;\
+	\}\
+	\
+	@RequestMapping(value = "/v1/blackList", method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)\
+	@ApiOperation(value = "Get all blacklist details ", response = Response.class)\
+	@ApiResponses(value = \{\
+            @ApiResponse(code = 200, message = "Success", response = Response.class),\
+            @ApiResponse(code = 400, message = "Bad request", response = Response.class),\
+            @ApiResponse(code = 404, message = "Could not get all blacklist", response = Response.class),\
+            @ApiResponse(code = 500, message = "Error occurred while getting all blacklist")\})\
+	public Response<List<BlackListedDetails>> blackListDetails() \{\
+		\
+		Response<List<BlackListedDetails>> respone  = new Response<List<BlackListedDetails>>();\
+		\
+		try \{\
+			\
+			logger.info("blackListDetails start..");\
+			\
+			List<BlackListedDetails> blacklistDetails = blackListedBusiness.getAllBlacklistDetails();\
+			\
+			respone.setResult(blacklistDetails);\
+			\
+			respone.setMetaData(new MetaData(200, ApplicationConstant.SUCCESS));\
+			\
+		\} catch (Exception e) \{\
+			\
+			logger.error("Exception occurred while blackListDetails::"+e.getMessage());\
+			\
+			respone.setErrorData(new ErrorData(ApplicationConstant.EXCEPTION,e.getMessage()));\
+			\
+			respone.setMetaData(new MetaData(500, ApplicationConstant.FAILURE));\
+			\
+		\}\
+		\
+		return respone;\
+	\}\
+\}\
+\
+}
